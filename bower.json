@@ -1,0 +1,30 @@
+{
+  "name": "purescript-json",
+  "license": "MIT",
+  "keywords": [
+    "purescript",
+    "argonaut",
+    "json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/garyb/purescript-json.git"
+  },
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules",
+    "output",
+    "test",
+    "bower.json",
+    "package.json"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^4.1.0",
+    "purescript-functions": "^4.0.0",
+    "purescript-maybe": "^4.0.1",
+    "purescript-either": "^4.1.1",
+    "purescript-st": "^4.0.0",
+    "purescript-tuples": "^5.1.0"
+  }
+}
