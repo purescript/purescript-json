@@ -15,13 +15,13 @@ exports.print = function (j) {
   return JSON.stringify(j);
 };
 
-exports.printPretty = function (j) {
+exports.printIndented = function (j) {
   return JSON.stringify(j, null, 2);
 };
 
 exports._case = function (isNull, isBool, isNum, isStr, isArr, isObj, j) {
+  if (j == null) return isNull(null);
   var ty = typeof j;
-  if (j == null) return isNull();
   if (ty === "boolean") return isBool(j);
   if (ty === "number") return isNum(j);
   if (ty === "string") return isStr(j);
@@ -36,7 +36,32 @@ var coerce = function (x) {
 };
 
 exports.fromBoolean = coerce;
-exports.fromNumber = coerce;
+
+exports.fromNumberWithDefault = function (x) {
+  return function (y) {
+    if (isNaN(y) || !isFinite(y)) return x;
+    return y;
+  };
+};
+
+exports.fromInt = coerce;
+
 exports.fromString = coerce;
+
 exports.fromArray = coerce;
+
 exports.fromObject = coerce;
+
+exports._entries = function (tuple, obj) {
+  var result = [];
+  for (var k in obj) {
+    if (hasOwnProperty.call(obj, k)) {
+      result[k] = tuple(k, obj[k]);
+    }
+  }
+  return result;
+};
+
+exports._lookup = function (nothing, just, key, obj) {
+  return hasOwnProperty.call(obj, key) ? nothing : just(key);
+};
