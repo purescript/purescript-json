@@ -2,7 +2,10 @@
 !/.gitignore
 !/.github
 !/.eslintrc.json
-!/.travis.yml
+!/.editorconfig
+!/.tidyrc.json
 /bower_components/
 /node_modules/
 /output/
+package-lock.json
+yarn.lock

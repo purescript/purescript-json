@@ -9,7 +9,6 @@ exports.new = function () {
 exports._poke = function (k, v, obj) {
   return function () {
     obj[k] = v;
-    return obj;
   };
 };
 

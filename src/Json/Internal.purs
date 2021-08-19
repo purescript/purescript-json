@@ -2,11 +2,9 @@ module Json.Internal
   ( Json
   , Object
   , Null
-
   , parse
   , print
   , printIndented
-
   , case_
   , toNull
   , toBoolean
@@ -14,7 +12,6 @@ module Json.Internal
   , toString
   , toArray
   , toObject
-
   , null
   , fromNumber
   , fromNumberWithDefault
@@ -23,7 +20,6 @@ module Json.Internal
   , fromString
   , fromArray
   , fromObject
-
   , entries
   , keys
   , values
@@ -100,10 +96,10 @@ parse j = runFn3 _parse Left Right j
 
 foreign import _parse
   :: Fn3
-      (forall a b. a -> Either a b)
-      (forall a b. b -> Either a b)
-      String
-      (Either String Json)
+    (forall a b. a -> Either a b)
+    (forall a b. b -> Either a b)
+    String
+    (Either String Json)
 
 -- | Prints a JSON value as a compact (single line) string.
 foreign import print :: Json -> String
@@ -133,14 +129,14 @@ case_ a b c d e f json = runFn7 _case a b c d e f json
 foreign import _case
   :: forall a
    . Fn7
-      (Null -> a)
-      (Boolean -> a)
-      (Number -> a)
-      (String -> a)
-      (Array Json -> a)
-      (Object -> a)
-      Json
-      a
+       (Null -> a)
+       (Boolean -> a)
+       (Number -> a)
+       (String -> a)
+       (Array Json -> a)
+       (Object -> a)
+       Json
+       a
 
 fail :: forall a b. a -> Maybe b
 fail _ = Nothing
@@ -183,7 +179,7 @@ foreign import fromBoolean :: Boolean -> Json
 -- | The PureScript `Number` type admits infinities and a `NaN` value which are
 -- | not allowed in JSON, so when encountered, this function will treat those
 -- | values as 0.
-fromNumber ∷ Number -> Json
+fromNumber :: Number -> Json
 fromNumber = fromNumberWithDefault 0
 
 -- | Creates a `Json` value from a `Number`, using a fallback `Int` value for
@@ -221,11 +217,11 @@ foreign import _entries :: forall c. Fn2 (String -> Json -> c) Object (Array c)
 
 -- | Extracts the keys of an `Object`.
 keys :: Object -> Array String
-keys obj = runFn2 _entries (\k _ → k) obj
+keys obj = runFn2 _entries (\k _ -> k) obj
 
 -- | Extracts the values of an `Object`.
 values :: Object -> Array Json
-values obj = runFn2 _entries (\_ v → v) obj
+values obj = runFn2 _entries (\_ v -> v) obj
 
 -- | Attempts to fetch the value for a key from an `Object`. If the key is not
 -- | present `Nothing` is returned.
@@ -234,8 +230,8 @@ lookup k obj = runFn4 _lookup Nothing Just k obj
 
 foreign import _lookup
   :: Fn4
-      (forall a. Maybe a)
-      (forall a. a -> Maybe a)
-      String
-      Object
-      (Maybe Json)
+    (forall a. Maybe a)
+    (forall a. a -> Maybe a)
+    String
+    Object
+    (Maybe Json)

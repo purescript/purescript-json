@@ -20,11 +20,12 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-prelude": "^4.1.0",
-    "purescript-functions": "^4.0.0",
-    "purescript-maybe": "^4.0.1",
-    "purescript-either": "^4.1.1",
-    "purescript-st": "^4.0.0",
-    "purescript-tuples": "^5.1.0"
+    "purescript-prelude": "^5.0.1",
+    "purescript-functions": "^5.0.0",
+    "purescript-maybe": "^5.0.0",
+    "purescript-either": "^5.0.0",
+    "purescript-st": "^5.0.1",
+    "purescript-tuples": "^6.0.1",
+    "purescript-foldable-traversable": "^5.0.1"
   }
 }
