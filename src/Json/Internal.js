@@ -1,6 +1,7 @@
 "use strict";
 
-var toString = {}.prototype.toString;
+var toString = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 exports._parse = function (left, right, s) {
   try {
@@ -63,5 +64,5 @@ exports._entries = function (tuple, obj) {
 };
 
 exports._lookup = function (nothing, just, key, obj) {
-  return hasOwnProperty.call(obj, key) ? nothing : just(key);
+  return hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;
 };

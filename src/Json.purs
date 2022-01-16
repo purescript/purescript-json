@@ -2,7 +2,6 @@ module Json (module Json.Internal) where
 
 import Json.Internal
   ( Json
-  , Null
 
   , parse
   , print

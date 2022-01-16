@@ -1,7 +1,6 @@
 module Json.Internal
   ( Json
   , Object
-  , Null
   , parse
   , print
   , printIndented
@@ -36,8 +35,8 @@ import Data.Tuple (Tuple(..))
 
 -- | A type that represents all varieties of JSON value.
 -- |
--- | This is not a PureScript sum type, instead the underlying JSON
--- | representation is used for efficiency and performance reasons.
+-- | This is not a PureScript sum type, instead the underlying JSON representation is used for
+-- | efficiency and performance reasons.
 foreign import data Json :: Type
 
 instance eqJson :: Eq Json where
@@ -80,43 +79,33 @@ instance eqObject :: Eq Object where
 instance ordObject :: Ord Object where
   compare = compare `on` entries
 
--- | A type that represents the JSON `null` value.
-foreign import data Null :: Type
-
-instance eqNull :: Eq Null where
-  eq _ _ = true
-
-instance ordNull :: Ord Null where
-  compare _ _ = EQ
-
--- | Attempts to parse a string as a JSON value. If parsing fails, an error
--- | message detailing the cause may be returned in the `Left` of the result.
+-- | Attempts to parse a string as a JSON value. If parsing fails, an error message detailing the
+-- | cause may be returned in the `Left` of the result.
 parse :: String -> Either String Json
 parse j = runFn3 _parse Left Right j
 
 foreign import _parse
   :: Fn3
-    (forall a b. a -> Either a b)
-    (forall a b. b -> Either a b)
-    String
-    (Either String Json)
+       (forall a b. a -> Either a b)
+       (forall a b. b -> Either a b)
+       String
+       (Either String Json)
 
 -- | Prints a JSON value as a compact (single line) string.
 foreign import print :: Json -> String
 
--- | Prints a JSON value as a "pretty" string, using the specified number of
--- | spaces for indentation.
+-- | Prints a JSON value as a "pretty" string, using the specified number of spaces for indentation.
 foreign import printIndented :: Int -> Json -> String
 
 -- | Performs case analysis on a JSON value.
 -- |
--- | As the `Json` type is not a PureScript sum type, pattern matching cannot
--- | be used to discriminate between the potential varieties of value. This
--- | function provides an equivalent mechanism by accepting functions that deal
--- | with each variety, similar to an exaustive `case` statement.
+-- | As the `Json` type is not a PureScript sum type, pattern matching cannot be used to
+-- | discriminate between the potential varieties of value. This function provides an equivalent
+-- | mechanism by accepting functions that deal with each variety, similar to an exaustive `case`
+-- | statement.
 case_
   :: forall a
-   . (Null -> a)
+   . (Unit -> a)
   -> (Boolean -> a)
   -> (Number -> a)
   -> (String -> a)
@@ -129,7 +118,7 @@ case_ a b c d e f json = runFn7 _case a b c d e f json
 foreign import _case
   :: forall a
    . Fn7
-       (Null -> a)
+       (Unit -> a)
        (Boolean -> a)
        (Number -> a)
        (String -> a)
@@ -142,7 +131,7 @@ fail :: forall a b. a -> Maybe b
 fail _ = Nothing
 
 -- | Converts a `Json` value to `Null` if the `Json` is `null`.
-toNull :: Json -> Maybe Null
+toNull :: Json -> Maybe Unit
 toNull json = runFn7 _case Just fail fail fail fail fail json
 
 -- | Converts a `Json` value to `Boolean` if the `Json` is a boolean.
@@ -166,41 +155,39 @@ toObject :: Json -> Maybe Object
 toObject json = runFn7 _case fail fail fail fail fail Just json
 
 -- | The JSON `null` value.
-null :: Null
+null :: Json
 null = _null
 
-foreign import _null :: Null
+foreign import _null :: Json
 
 -- | Creates a `Json` value from a `Boolean`.
 foreign import fromBoolean :: Boolean -> Json
 
 -- | Creates a `Json` value from a `Number`.
 -- |
--- | The PureScript `Number` type admits infinities and a `NaN` value which are
--- | not allowed in JSON, so when encountered, this function will treat those
--- | values as 0.
+-- | The PureScript `Number` type admits infinities and a `NaN` value which are not allowed in JSON,
+-- | so when encountered, this function will treat those values as 0.
 fromNumber :: Number -> Json
 fromNumber = fromNumberWithDefault 0
 
--- | Creates a `Json` value from a `Number`, using a fallback `Int` value for
--- | cases where the PureScript number value is not valid for JSON.
+-- | Creates a `Json` value from a `Number`, using a fallback `Int` value for cases where the
+-- | PureScript number value is not valid for JSON.
 foreign import fromNumberWithDefault :: Int -> Number -> Json
 
 -- | Creates a `Json` value from an `Int`.
 -- |
--- | There is no corresponding `toInt` as JSON doesn't have a concept of
--- | integers - this is provided as a convenience to avoid having to convert
--- | `Int` to `Number` before creating a `Json` value.
+-- | There is no corresponding `toInt` as JSON doesn't have a concept of integers - this is provided
+-- | as a convenience to avoid having to convert `Int` to `Number` before creating a `Json` value.
 foreign import fromInt :: Int -> Json
 
 -- | Creates a `Json` value from a `String`.
 -- |
--- | **Note**: this does not parse a string as a JSON value, it takes a
--- | PureScript string and produces the corresponding `Json` value for that
--- | string, similar to the other functions like `fromBoolean` and `fromNumber`.
+-- | **Note**: this does not parse a string as a JSON value, it takes a PureScript string and
+-- | produces the corresponding `Json` value for that string, similar to the other functions like
+-- | `fromBoolean` and `fromNumber`.
 -- |
--- | To take a string that contains printed JSON and turn it into a `Json`
--- | value, see [`parse`](#v:parse).
+-- | To take a string that contains printed JSON and turn it into a `Json` value, see
+-- | [`parse`](#v:parse).
 foreign import fromString :: String -> Json
 
 -- | Creates a `Json` value from an array of `Json` values.
@@ -223,15 +210,15 @@ keys obj = runFn2 _entries (\k _ -> k) obj
 values :: Object -> Array Json
 values obj = runFn2 _entries (\_ v -> v) obj
 
--- | Attempts to fetch the value for a key from an `Object`. If the key is not
--- | present `Nothing` is returned.
+-- | Attempts to fetch the value for a key from an `Object`. If the key is not present `Nothing` is
+-- | returned.
 lookup :: String -> Object -> Maybe Json
 lookup k obj = runFn4 _lookup Nothing Just k obj
 
 foreign import _lookup
   :: Fn4
-    (forall a. Maybe a)
-    (forall a. a -> Maybe a)
-    String
-    Object
-    (Maybe Json)
+       (forall a. Maybe a)
+       (forall a. a -> Maybe a)
+       String
+       Object
+       (Maybe Json)
