@@ -1,33 +1,15 @@
-"use strict";
-
-var hasOwnProperty = {}.hasOwnProperty;
-
-exports.new = function () {
+export const _new = () => {
   return {};
 };
 
-exports._poke = function (k, v, obj) {
-  return function () {
-    obj[k] = v;
-  };
+export const _poke = (k, v, obj) => () => {
+  obj[k] = v;
 };
 
-var copy = function (obj) {
-  return function () {
-    var r = {};
-    for (var k in obj) {
-      if (hasOwnProperty.call(obj, k)) {
-        r[k] = obj[k];
-      }
-    }
-    return r;
-  };
-};
+const copy = (obj) => () => Object.assign({}, obj);
 
-exports.freeze = copy;
+export const freeze = copy;
 
-exports.thaw = copy;
+export const thaw = copy;
 
-exports.run = function (f) {
-  return f();
-};
+export const run = (f) => f();

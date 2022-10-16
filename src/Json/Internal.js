@@ -1,9 +1,8 @@
-"use strict";
+const toString = Object.prototype.toString;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+const coerce = (x) => x;
 
-var toString = Object.prototype.toString;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-exports._parse = function (left, right, s) {
+export const _parse = (left, right, s) => {
   try {
     return right(JSON.parse(s));
   }
@@ -12,17 +11,13 @@ exports._parse = function (left, right, s) {
   }
 };
 
-exports.print = function (j) {
-  return JSON.stringify(j);
-};
+export const print = (j) => JSON.stringify(j);
 
-exports.printIndented = function (j) {
-  return JSON.stringify(j, null, 2);
-};
+export const printIndented = (j) => JSON.stringify(j, null, 2);
 
-exports._case = function (isNull, isBool, isNum, isStr, isArr, isObj, j) {
+export const _case = (isNull, isBool, isNum, isStr, isArr, isObj, j) => {
   if (j == null) return isNull(null);
-  var ty = typeof j;
+  const ty = typeof j;
   if (ty === "boolean") return isBool(j);
   if (ty === "number") return isNum(j);
   if (ty === "string") return isStr(j);
@@ -30,39 +25,22 @@ exports._case = function (isNull, isBool, isNum, isStr, isArr, isObj, j) {
   return isObj(j);
 };
 
-exports._null = null;
+export const _null = null;
 
-var coerce = function (x) {
-  return x;
-};
+export const fromBoolean = coerce;
 
-exports.fromBoolean = coerce;
+export const fromNumberWithDefault = (fallback) => (n) => isNaN(n) || !isFinite(n) ? fallback : n;
 
-exports.fromNumberWithDefault = function (x) {
-  return function (y) {
-    if (isNaN(y) || !isFinite(y)) return x;
-    return y;
-  };
-};
+export const fromInt = coerce;
 
-exports.fromInt = coerce;
+export const fromString = coerce;
 
-exports.fromString = coerce;
+export const fromArray = coerce;
 
-exports.fromArray = coerce;
+export const fromObject = coerce;
 
-exports.fromObject = coerce;
+export const _entries = (tuple, obj) =>
+  Object.entries(obj).map(([k, v]) => tuple(k)(v));
 
-exports._entries = function (tuple, obj) {
-  var result = [];
-  for (var k in obj) {
-    if (hasOwnProperty.call(obj, k)) {
-      result[k] = tuple(k, obj[k]);
-    }
-  }
-  return result;
-};
-
-exports._lookup = function (nothing, just, key, obj) {
-  return hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;
-};
+export const _lookup = (nothing, just, key, obj) =>
+  hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;

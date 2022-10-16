@@ -15,7 +15,10 @@ import Json.Internal (Json, Object)
 
 foreign import data STObject :: Region -> Type
 
-foreign import new :: forall r. ST r (STObject r)
+new :: forall r. ST r (STObject r)
+new = _new
+
+foreign import _new :: forall r. ST r (STObject r)
 
 poke :: forall r. String -> Json -> STObject r -> ST r Unit
 poke key value obj = runFn3 _poke key value obj
