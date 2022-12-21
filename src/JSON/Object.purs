@@ -14,7 +14,6 @@ module JSON.Object
   , module Exports
   ) where
 
-
 import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex, foldrWithIndex)
