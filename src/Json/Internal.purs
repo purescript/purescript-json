@@ -1,45 +1,19 @@
-module Json.Internal
-  ( Json
-  , Object
-  , parse
-  , print
-  , printIndented
-  , case_
-  , toNull
-  , toBoolean
-  , toNumber
-  , toString
-  , toArray
-  , toObject
-  , null
-  , fromNumber
-  , fromNumberWithDefault
-  , fromInt
-  , fromBoolean
-  , fromString
-  , fromArray
-  , fromObject
-  , entries
-  , keys
-  , values
-  , lookup
-  ) where
+module JSON.Internal where
 
 import Prelude
 
-import Data.Either (Either(..))
-import Data.Function (on)
-import Data.Function.Uncurried (Fn2, Fn3, Fn4, Fn7, runFn2, runFn3, runFn4, runFn7)
-import Data.Maybe (Maybe(..))
+import Data.Either (Either)
+import Data.Function.Uncurried (Fn2, Fn3, Fn4, Fn7, runFn2, runFn7)
+import Data.Maybe (Maybe)
 import Data.Tuple (Tuple(..))
 
 -- | A type that represents all varieties of JSON value.
 -- |
 -- | This is not a PureScript sum type, instead the underlying JSON representation is used for
 -- | efficiency and performance reasons.
-foreign import data Json :: Type
+foreign import data JSON :: Type
 
-instance eqJson :: Eq Json where
+instance Eq JSON where
   eq a b =
     runFn7 _case
       (\x -> runFn7 _case (eq x) _false _false _false _false _false a)
@@ -53,16 +27,16 @@ instance eqJson :: Eq Json where
 _false :: forall a. a -> Boolean
 _false _ = false
 
-instance ordJson :: Ord Json where
+instance Ord JSON where
   compare a b =
     runFn7 _case
-      (\x -> runFn7 _case (compare x) _gt _gt _gt _gt _gt a)
-      (\x -> runFn7 _case _lt (compare x) _gt _gt _gt _gt a)
-      (\x -> runFn7 _case _lt _lt (compare x) _gt _gt _gt a)
-      (\x -> runFn7 _case _lt _lt _lt (compare x) _gt _gt a)
-      (\x -> runFn7 _case _lt _lt _lt _lt (compare x) _gt a)
-      (\x -> runFn7 _case _lt _lt _lt _lt _lt (compare x) a)
-      b
+      (\x -> runFn7 _case (compare x) _gt _gt _gt _gt _gt b)
+      (\x -> runFn7 _case _lt (compare x) _gt _gt _gt _gt b)
+      (\x -> runFn7 _case _lt _lt (compare x) _gt _gt _gt b)
+      (\x -> runFn7 _case _lt _lt _lt (compare x) _gt _gt b)
+      (\x -> runFn7 _case _lt _lt _lt _lt (compare x) _gt b)
+      (\x -> runFn7 _case _lt _lt _lt _lt _lt (compare x) b)
+      a
 
 _lt :: forall a. a -> Ordering
 _lt _ = LT
@@ -70,50 +44,24 @@ _lt _ = LT
 _gt :: forall a. a -> Ordering
 _gt _ = GT
 
--- | A type that represents JSON objects.
+-- | A type that represents JSON objects. Similar to the JSON type, this is not a PureScript type,
+-- | but represents the underlying representation for JSON objects.
 foreign import data Object :: Type
 
-instance eqObject :: Eq Object where
-  eq = eq `on` entries
+instance Eq Object where
+  eq x y = eq (runFn2 _entries Tuple x) (runFn2 _entries Tuple y)
 
-instance ordObject :: Ord Object where
-  compare = compare `on` entries
-
--- | Attempts to parse a string as a JSON value. If parsing fails, an error message detailing the
--- | cause may be returned in the `Left` of the result.
-parse :: String -> Either String Json
-parse j = runFn3 _parse Left Right j
+instance Ord Object where
+  compare x y = compare (runFn2 _entries Tuple x) (runFn2 _entries Tuple y)
 
 foreign import _parse
   :: Fn3
        (forall a b. a -> Either a b)
        (forall a b. b -> Either a b)
        String
-       (Either String Json)
+       (Either String JSON)
 
--- | Prints a JSON value as a compact (single line) string.
-foreign import print :: Json -> String
-
--- | Prints a JSON value as a "pretty" string, using the specified number of spaces for indentation.
-foreign import printIndented :: Int -> Json -> String
-
--- | Performs case analysis on a JSON value.
--- |
--- | As the `Json` type is not a PureScript sum type, pattern matching cannot be used to
--- | discriminate between the potential varieties of value. This function provides an equivalent
--- | mechanism by accepting functions that deal with each variety, similar to an exaustive `case`
--- | statement.
-case_
-  :: forall a
-   . (Unit -> a)
-  -> (Boolean -> a)
-  -> (Number -> a)
-  -> (String -> a)
-  -> (Array Json -> a)
-  -> (Object -> a)
-  -> Json
-  -> a
-case_ a b c d e f json = runFn7 _case a b c d e f json
+foreign import _fromNumberWithDefault :: Fn2 Int Number JSON
 
 foreign import _case
   :: forall a
@@ -122,98 +70,23 @@ foreign import _case
        (Boolean -> a)
        (Number -> a)
        (String -> a)
-       (Array Json -> a)
+       (Array JSON -> a)
        (Object -> a)
-       Json
+       JSON
        a
 
-fail :: forall a b. a -> Maybe b
-fail _ = Nothing
+foreign import _insert :: Fn3 String JSON Object Object
 
--- | Converts a `Json` value to `Null` if the `Json` is `null`.
-toNull :: Json -> Maybe Unit
-toNull json = runFn7 _case Just fail fail fail fail fail json
+foreign import _delete :: Fn2 String Object Object
 
--- | Converts a `Json` value to `Boolean` if the `Json` is a boolean.
-toBoolean :: Json -> Maybe Boolean
-toBoolean json = runFn7 _case fail Just fail fail fail fail json
+foreign import _fromEntries
+  :: Fn3
+       (forall x y. Tuple x y -> x)
+       (forall x y. Tuple x y -> y)
+       (Array (Tuple String JSON))
+       Object
 
--- | Converts a `Json` value to `Number` if the `Json` is a number.
-toNumber :: Json -> Maybe Number
-toNumber json = runFn7 _case fail fail Just fail fail fail json
-
--- | Converts a `Json` value to `String` if the `Json` is a string.
-toString :: Json -> Maybe String
-toString json = runFn7 _case fail fail fail Just fail fail json
-
--- | Converts a `Json` value to `Array Json` if the `Json` is an array.
-toArray :: Json -> Maybe (Array Json)
-toArray json = runFn7 _case fail fail fail fail Just fail json
-
--- | Converts a `Json` value to `Object` if the `Json` is an object.
-toObject :: Json -> Maybe Object
-toObject json = runFn7 _case fail fail fail fail fail Just json
-
--- | The JSON `null` value.
-null :: Json
-null = _null
-
-foreign import _null :: Json
-
--- | Creates a `Json` value from a `Boolean`.
-foreign import fromBoolean :: Boolean -> Json
-
--- | Creates a `Json` value from a `Number`.
--- |
--- | The PureScript `Number` type admits infinities and a `NaN` value which are not allowed in JSON,
--- | so when encountered, this function will treat those values as 0.
-fromNumber :: Number -> Json
-fromNumber = fromNumberWithDefault 0
-
--- | Creates a `Json` value from a `Number`, using a fallback `Int` value for cases where the
--- | PureScript number value is not valid for JSON.
-foreign import fromNumberWithDefault :: Int -> Number -> Json
-
--- | Creates a `Json` value from an `Int`.
--- |
--- | There is no corresponding `toInt` as JSON doesn't have a concept of integers - this is provided
--- | as a convenience to avoid having to convert `Int` to `Number` before creating a `Json` value.
-foreign import fromInt :: Int -> Json
-
--- | Creates a `Json` value from a `String`.
--- |
--- | **Note**: this does not parse a string as a JSON value, it takes a PureScript string and
--- | produces the corresponding `Json` value for that string, similar to the other functions like
--- | `fromBoolean` and `fromNumber`.
--- |
--- | To take a string that contains printed JSON and turn it into a `Json` value, see
--- | [`parse`](#v:parse).
-foreign import fromString :: String -> Json
-
--- | Creates a `Json` value from an array of `Json` values.
-foreign import fromArray :: Array Json -> Json
-
--- | Creates a `Json` value from an `Object`.
-foreign import fromObject :: Object -> Json
-
--- | Extracts the key/value pairs of an `Object`.
-entries :: Object -> Array (Tuple String Json)
-entries obj = runFn2 _entries Tuple obj
-
-foreign import _entries :: forall c. Fn2 (String -> Json -> c) Object (Array c)
-
--- | Extracts the keys of an `Object`.
-keys :: Object -> Array String
-keys obj = runFn2 _entries (\k _ -> k) obj
-
--- | Extracts the values of an `Object`.
-values :: Object -> Array Json
-values obj = runFn2 _entries (\_ v -> v) obj
-
--- | Attempts to fetch the value for a key from an `Object`. If the key is not present `Nothing` is
--- | returned.
-lookup :: String -> Object -> Maybe Json
-lookup k obj = runFn4 _lookup Nothing Just k obj
+foreign import _entries :: forall c. Fn2 (String -> JSON -> c) Object (Array c)
 
 foreign import _lookup
   :: Fn4
@@ -221,4 +94,4 @@ foreign import _lookup
        (forall a. a -> Maybe a)
        String
        Object
-       (Maybe Json)
+       (Maybe JSON)

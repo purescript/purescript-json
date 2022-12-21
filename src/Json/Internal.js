@@ -1,6 +1,5 @@
 const toString = Object.prototype.toString;
 const hasOwnProperty = Object.prototype.hasOwnProperty;
-const coerce = (x) => x;
 
 export const _parse = (left, right, s) => {
   try {
@@ -11,9 +10,7 @@ export const _parse = (left, right, s) => {
   }
 };
 
-export const print = (j) => JSON.stringify(j);
-
-export const printIndented = (j) => JSON.stringify(j, null, 2);
+export const _fromNumberWithDefault = (fallback, n) => isNaN(n) || !isFinite(n) ? fallback : n;
 
 export const _case = (isNull, isBool, isNum, isStr, isArr, isObj, j) => {
   if (j == null) return isNull(null);
@@ -25,19 +22,23 @@ export const _case = (isNull, isBool, isNum, isStr, isArr, isObj, j) => {
   return isObj(j);
 };
 
-export const _null = null;
+export const _fromEntries = (fst, snd, entries) => {
+  const result = {};
+  for (var i = 0; i < entries.length; i++) {
+    result[fst(entries[i])] = snd(entries[i]);
+  }
+  return result;
+};
 
-export const fromBoolean = coerce;
+export const _insert = (k, v, obj) =>
+  Object.assign({ [k]: v }, obj);
 
-export const fromNumberWithDefault = (fallback) => (n) => isNaN(n) || !isFinite(n) ? fallback : n;
-
-export const fromInt = coerce;
-
-export const fromString = coerce;
-
-export const fromArray = coerce;
-
-export const fromObject = coerce;
+export const _delete = (k, obj) => {
+  if (!Object.hasOwn(obj, k)) return obj;
+  const result = Object.assign({}, obj);
+  delete result[k];
+  return result;
+};
 
 export const _entries = (tuple, obj) =>
   Object.entries(obj).map(([k, v]) => tuple(k)(v));

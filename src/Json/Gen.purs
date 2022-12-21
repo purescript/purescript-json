@@ -1,4 +1,4 @@
-module Json.Gen where
+module JSON.Gen where
 
 import Prelude
 
@@ -9,35 +9,50 @@ import Control.Monad.Rec.Class (class MonadRec)
 import Data.NonEmpty ((:|))
 import Data.String.Gen (genUnicodeString)
 import Data.Tuple (Tuple(..))
-import Json as J
-import Json.Object as Object
+import JSON as J
+import JSON.Object as Object
 
--- | A generator for `Json` values. Especially useful for writing property-based tests.
-genJson :: forall m. MonadGen m => MonadRec m => Lazy (m J.Json) => m J.Json
-genJson = Gen.resize (min 5) $ Gen.sized genJson'
+-- | A generator for random `JSON` values of any variety.
+genJSON :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON
+genJSON = Gen.resize (min 5) $ Gen.sized genJSON'
   where
-  genJson' :: Int -> m J.Json
-  genJson' size
+  genJSON' :: Int -> m J.JSON
+  genJSON' size
     | size > 1 = Gen.resize (_ - 1) (Gen.choose genArray genObject)
     | otherwise = genLeaf
 
-  genArray :: m J.Json
-  genArray = J.fromArray <$> Gen.unfoldable (defer \_ -> genJson)
+-- | A generator for JSON arrays containing items based on the passed generator.
+genArrayOf :: forall m. MonadGen m => MonadRec m => m J.JSON -> m J.JSON
+genArrayOf inner = J.fromArray <$> Gen.unfoldable inner
 
-  genObject :: m J.Json
-  genObject = J.fromObject <<< Object.fromFoldable <$> genObjectEntries
+-- | A generator for JSON arrays containing random items.
+genArray :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON
+genArray = genArrayOf (defer \_ -> genJSON)
 
-  genObjectEntries :: m (Array (Tuple String J.Json))
-  genObjectEntries = Gen.unfoldable (Tuple <$> genUnicodeString <*> (defer \_ -> genJson))
+-- | A generator for JSON objects containing entries based on the passed generator.
+genObjectOf :: forall m. MonadGen m => MonadRec m => m (Tuple String J.JSON) -> m J.JSON
+genObjectOf inner = J.fromObject <<< Object.fromEntries <$> (Gen.unfoldable inner)
 
-  genLeaf :: m J.Json
-  genLeaf = Gen.oneOf $ pure J.null :| [ genBoolean, genNumber, genString ]
+-- | A generator for JSON objects containing random entries.
+genObject :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON
+genObject = genObjectOf (Tuple <$> genUnicodeString <*> defer \_ -> genJSON)
 
-  genBoolean :: m J.Json
-  genBoolean = J.fromBoolean <$> Gen.chooseBool
+-- | A generator for JSON leaf (null, boolean, number, string) values.
+genLeaf :: forall m. MonadGen m => MonadRec m => m J.JSON
+genLeaf = Gen.oneOf $ pure J.null :| [ genBoolean, genNumber, genString ]
 
-  genNumber :: m J.Json
-  genNumber = J.fromNumber <$> Gen.chooseFloat (-1000000.0) 1000000.0
+-- | A generator for JSON booleans.
+genBoolean :: forall m. MonadGen m => m J.JSON
+genBoolean = J.fromBoolean <$> Gen.chooseBool
 
-  genString :: m J.Json
-  genString = J.fromString <$> genUnicodeString
+-- | A generator for JSON numbers.
+genNumber :: forall m. MonadGen m => m J.JSON
+genNumber = J.fromNumber <$> Gen.chooseFloat (-1000000.0) 1000000.0
+
+-- | A generator for JSON integers.
+genInt :: forall m. MonadGen m => m J.JSON
+genInt = J.fromInt <$> Gen.chooseInt (-1000000) 1000000
+
+-- | A generator for JSON strings.
+genString :: forall m. MonadGen m => MonadRec m => m J.JSON
+genString = J.fromString <$> genUnicodeString
