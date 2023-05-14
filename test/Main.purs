@@ -6,6 +6,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 import JSON as J
+import JSON.Array as JA
 import JSON.Object as JO
 import Test.Assert (assertTrue)
 
@@ -23,11 +24,11 @@ main = do
   assertTrue $ J.fromString "q" > J.fromString "p"
 
   log "Check array comparisons"
-  assertTrue $ J.fromArray [] == J.fromArray []
-  assertTrue $ J.fromArray [J.fromInt 1] == J.fromArray [J.fromInt 1]
-  assertTrue $ J.fromArray [J.fromInt 1] < J.fromArray [J.fromInt 2]
+  assertTrue $ J.fromJArray (JA.fromArray []) == J.fromJArray (JA.fromArray [])
+  assertTrue $ J.fromJArray (JA.fromArray [J.fromInt 1]) == J.fromJArray (JA.fromArray [J.fromInt 1])
+  assertTrue $ J.fromJArray (JA.fromArray [J.fromInt 1]) < J.fromJArray (JA.fromArray [J.fromInt 2])
 
   log "Check object comparisons"
   assertTrue $ JO.empty == JO.empty
-  assertTrue $ J.fromObject (JO.fromEntries [Tuple "a" (J.fromInt 1)]) == J.fromObject (JO.fromEntries [Tuple "a" (J.fromInt 1)])
-  assertTrue $ J.fromObject (JO.fromEntries [Tuple "a" (J.fromInt 1)]) < J.fromObject (JO.fromEntries [Tuple "a" (J.fromInt 2)])
+  assertTrue $ J.fromJObject (JO.fromEntries [Tuple "a" (J.fromInt 1)]) == J.fromJObject (JO.fromEntries [Tuple "a" (J.fromInt 1)])
+  assertTrue $ J.fromJObject (JO.fromEntries [Tuple "a" (J.fromInt 1)]) < J.fromJObject (JO.fromEntries [Tuple "a" (J.fromInt 2)])

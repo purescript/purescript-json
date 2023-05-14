@@ -10,7 +10,8 @@ import Data.NonEmpty ((:|))
 import Data.String.Gen (genUnicodeString)
 import Data.Tuple (Tuple(..))
 import JSON as J
-import JSON.Object as Object
+import JSON.Array as JArray
+import JSON.Object as JObject
 
 -- | A generator for random `JSON` values of any variety.
 genJSON :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON
@@ -23,7 +24,7 @@ genJSON = Gen.resize (min 5) $ Gen.sized genJSON'
 
 -- | A generator for JSON arrays containing items based on the passed generator.
 genArrayOf :: forall m. MonadGen m => MonadRec m => m J.JSON -> m J.JSON
-genArrayOf inner = J.fromArray <$> Gen.unfoldable inner
+genArrayOf inner = J.fromJArray <<< JArray.fromArray <$> Gen.unfoldable inner
 
 -- | A generator for JSON arrays containing random items.
 genArray :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON
@@ -31,7 +32,7 @@ genArray = genArrayOf (defer \_ -> genJSON)
 
 -- | A generator for JSON objects containing entries based on the passed generator.
 genObjectOf :: forall m. MonadGen m => MonadRec m => m (Tuple String J.JSON) -> m J.JSON
-genObjectOf inner = J.fromObject <<< Object.fromEntries <$> (Gen.unfoldable inner)
+genObjectOf inner = J.fromJObject <<< JObject.fromEntries <$> (Gen.unfoldable inner)
 
 -- | A generator for JSON objects containing random entries.
 genObject :: forall m. MonadGen m => MonadRec m => Lazy (m J.JSON) => m J.JSON

@@ -8,9 +8,9 @@ export const fromInt = coerce;
 
 export const fromString = coerce;
 
-export const fromArray = coerce;
+export const fromJArray = coerce;
 
-export const fromObject = coerce;
+export const fromJObject = coerce;
 
 export const print = (j) => JSON.stringify(j);
 
