@@ -13,6 +13,7 @@ module JSON
   , toNull
   , toBoolean
   , toNumber
+  , toInt
   , toString
   , toArray
   , toJArray
@@ -123,7 +124,7 @@ toNumber json = runFn7 Internal._case fail fail Just fail fail fail json
 -- | Converts a `JSON` `Number` into an `Int`.
 -- | 
 -- | This is provided for convenience only.
-toInt :: Json -> Maybe Int
+toInt :: JSON -> Maybe Int
 toInt = toNumber >=> Int.fromNumber
 
 -- | Converts a `JSON` value to `String` if the `JSON` is a string.
