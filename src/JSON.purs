@@ -62,7 +62,7 @@ fromNumberWithDefault fallback n = runFn2 Internal._fromNumberWithDefault fallba
 
 -- | Converts an `Int` into `JSON`.
 -- |
--- | There is no corresponding `toInt` as JSON doesn't have a concept of integers - this is provided
+-- | Note: JSON doesn't have a concept of integers. This is provided
 -- | as a convenience to avoid having to convert `Int` to `Number` before creating a `JSON` value.
 foreign import fromInt :: Int -> JSON
 
