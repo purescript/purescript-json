@@ -13,6 +13,7 @@ module JSON
   , toNull
   , toBoolean
   , toNumber
+  , toInt
   , toString
   , toArray
   , toJArray
@@ -27,6 +28,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Function.Uncurried (runFn2, runFn3, runFn7)
 import Data.Maybe (Maybe(..))
+import Data.Int as Int
 import JSON.Internal (JArray, JObject, JSON) as Exports
 import JSON.Internal (JArray, JObject, JSON)
 import JSON.Internal as Internal
@@ -60,7 +62,7 @@ fromNumberWithDefault fallback n = runFn2 Internal._fromNumberWithDefault fallba
 
 -- | Converts an `Int` into `JSON`.
 -- |
--- | There is no corresponding `toInt` as JSON doesn't have a concept of integers - this is provided
+-- | Note: JSON doesn't have a concept of integers. This is provided
 -- | as a convenience to avoid having to convert `Int` to `Number` before creating a `JSON` value.
 foreign import fromInt :: Int -> JSON
 
@@ -118,6 +120,12 @@ toBoolean json = runFn7 Internal._case fail Just fail fail fail fail json
 -- | Converts a `JSON` value to `Number` if the `JSON` is a number.
 toNumber :: JSON -> Maybe Number
 toNumber json = runFn7 Internal._case fail fail Just fail fail fail json
+
+-- | Converts a `JSON` `Number` into an `Int`.
+-- | 
+-- | This is provided for convenience only.
+toInt :: JSON -> Maybe Int
+toInt = toNumber >=> Int.fromNumber
 
 -- | Converts a `JSON` value to `String` if the `JSON` is a string.
 toString :: JSON -> Maybe String
