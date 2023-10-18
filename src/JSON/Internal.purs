@@ -2,9 +2,7 @@ module JSON.Internal where
 
 import Prelude
 
-import Data.Either (Either)
 import Data.Function.Uncurried (Fn2, Fn3, Fn4, Fn7, runFn2, runFn7)
-import Data.Maybe (Maybe)
 import Data.Tuple (Tuple(..))
 
 -- | A type that represents all varieties of JSON value.
@@ -54,17 +52,22 @@ foreign import toArray :: JArray -> Array JSON
 -- | Converts an `Array` of `JSON` values into a `JArray`.
 foreign import fromArray :: Array JSON -> JArray
 
+-- | An empty `JArray`.
+foreign import empty :: JArray
+
 instance Eq JArray where
-  eq x y = eq (toArray x) (toArray y)
+  eq xs ys
+    | length xs == length ys = eq (toArray xs) (toArray ys)
+    | otherwise = false
 
 instance Ord JArray where
   compare x y = compare (toArray x) (toArray y)
 
 instance Semigroup JArray where
-  append x y = fromArray (append (toArray x) (toArray y))
+  append xs ys = runFn2 _append xs ys
 
 instance Monoid JArray where
-  mempty = fromArray []
+  mempty = empty
 
 -- | A type that represents JSON objects. Similar to the JSON type, this is not a PureScript type,
 -- | but represents the underlying representation for JSON objects.
@@ -77,11 +80,12 @@ instance Ord JObject where
   compare x y = compare (runFn2 _entries Tuple x) (runFn2 _entries Tuple y)
 
 foreign import _parse
-  :: Fn3
-       (forall a b. a -> Either a b)
-       (forall a b. b -> Either a b)
+  :: forall f
+   . Fn3
+       (forall a b. a -> f a b)
+       (forall a b. b -> f a b)
        String
-       (Either String JSON)
+       (f String JSON)
 
 foreign import _fromNumberWithDefault :: Fn2 Int Number JSON
 
@@ -102,18 +106,37 @@ foreign import _insert :: Fn3 String JSON JObject JObject
 foreign import _delete :: Fn2 String JObject JObject
 
 foreign import _fromEntries
-  :: Fn3
-       (forall x y. Tuple x y -> x)
-       (forall x y. Tuple x y -> y)
-       (Prim.Array (Tuple String JSON))
+  :: forall f
+   . Fn3
+       (forall x y. f x y -> x)
+       (forall x y. f x y -> y)
+       (Prim.Array (f String JSON))
        JObject
 
 foreign import _entries :: forall c. Fn2 (String -> JSON -> c) JObject (Prim.Array c)
 
 foreign import _lookup
-  :: Fn4
-       (forall a. Maybe a)
-       (forall a. a -> Maybe a)
+  :: forall f
+   . Fn4
+       (forall a. f a)
+       (forall a. a -> f a)
        String
        JObject
-       (Maybe JSON)
+       (f JSON)
+
+foreign import _index
+  :: forall f
+   . Fn4
+       (forall a. f a)
+       (forall a. a -> f a)
+       Int
+       JArray
+       (f JSON)
+
+foreign import length :: JArray -> Int
+
+foreign import _append
+  :: Fn2
+       JArray
+       JArray
+       JArray

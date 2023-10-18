@@ -27,10 +27,10 @@ import Prelude
 
 import Data.Either (Either(..))
 import Data.Function.Uncurried (runFn2, runFn3, runFn7)
-import Data.Maybe (Maybe(..))
 import Data.Int as Int
-import JSON.Internal (JArray, JObject, JSON) as Exports
+import Data.Maybe (Maybe(..))
 import JSON.Internal (JArray, JObject, JSON)
+import JSON.Internal (JArray, JObject, JSON) as Exports
 import JSON.Internal as Internal
 
 -- | Attempts to parse a string as a JSON value. If parsing fails, an error message detailing the
@@ -122,7 +122,7 @@ toNumber :: JSON -> Maybe Number
 toNumber json = runFn7 Internal._case fail fail Just fail fail fail json
 
 -- | Converts a `JSON` `Number` into an `Int`.
--- | 
+-- |
 -- | This is provided for convenience only.
 toInt :: JSON -> Maybe Int
 toInt = toNumber >=> Int.fromNumber
