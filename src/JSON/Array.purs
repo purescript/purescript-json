@@ -1,6 +1,5 @@
 module JSON.Array
   ( fromFoldable
-  , empty
   , singleton
   , index
   , toUnfoldable
@@ -9,26 +8,22 @@ module JSON.Array
 
 import Data.Array as Array
 import Data.Foldable (class Foldable)
-import Data.Maybe (Maybe)
+import Data.Function.Uncurried (runFn4)
+import Data.Maybe (Maybe(..))
 import Data.Unfoldable (class Unfoldable)
-import JSON.Internal (JArray, JSON, fromArray, toArray)
-import JSON.Internal (JArray, fromArray, toArray) as Exports
+import JSON.Internal (JArray, JSON, fromArray, toArray, _index)
+import JSON.Internal (JArray, empty, length, fromArray, toArray) as Exports
 
 -- | Creates a `JArray` from a `Foldable` source of `JSON`.
 fromFoldable :: forall f. Foldable f => f JSON -> JArray
 fromFoldable js = fromArray (Array.fromFoldable js)
 
--- | An empty `JArray`.
-empty :: JArray
-empty = fromArray []
-
 -- | Creates a `JArray` with a single entry.
-singleton :: JSON -> JArray
-singleton j = fromArray [ j ]
+foreign import singleton :: JSON -> JArray
 
 -- | Attempts to read a value from the specified index of a `JArray`.
-index :: JArray -> Int -> Maybe JSON
-index js = Array.index (toArray js)
+index :: Int -> JArray -> Maybe JSON
+index ix arr = runFn4 _index Nothing Just ix arr
 
 -- | Unfolds a `JArray` into `JSON` items
 toUnfoldable :: forall f. Unfoldable f => JArray -> f JSON

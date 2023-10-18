@@ -48,3 +48,12 @@ export const _entries = (tuple, obj) =>
 
 export const _lookup = (nothing, just, key, obj) =>
   hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;
+
+export const empty = [];
+
+export const length = (arr) => arr.length;
+
+export const _index = (nothing, just, ix, arr) =>
+  ix >= 0 && ix < arr.length ? just(arr[ix]) : nothing;
+
+export const _append = (xs, ys) => xs.concat(ys);
