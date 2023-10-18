@@ -11,8 +11,8 @@ import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe)
 import Data.Unfoldable (class Unfoldable)
-import JSON.Internal (JArray, JSON, toArray, fromArray)
-import JSON.Internal (JArray, toArray, fromArray) as Exports
+import JSON.Internal (JArray, JSON, fromArray, toArray)
+import JSON.Internal (JArray, fromArray, toArray) as Exports
 
 -- | Creates a `JArray` from a `Foldable` source of `JSON`.
 fromFoldable :: forall f. Foldable f => f JSON -> JArray

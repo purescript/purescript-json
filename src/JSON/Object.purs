@@ -21,8 +21,8 @@ import Data.Function.Uncurried (runFn2, runFn3, runFn4)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable)
-import JSON.Internal (JSON, JObject, _delete, _entries, _fromEntries, _insert, _lookup)
 import JSON.Internal (JObject) as Exports
+import JSON.Internal (JObject, JSON, _delete, _entries, _fromEntries, _insert, _lookup)
 
 -- | Creates an `JObject` from an array of key/value pairs.
 fromEntries :: Array (Tuple String JSON) -> JObject
