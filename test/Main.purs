@@ -10,7 +10,7 @@ import JSON as J
 import JSON.Array as JA
 import JSON.Object as JO
 import JSON.Path as Path
-import Test.Assert (assertEqual, assertTrue)
+import Test.Assert (assertTrue)
 
 main :: Effect Unit
 main = do
@@ -46,18 +46,50 @@ main = do
   assertTrue $ JA.fromArray (J.fromInt <$> [ 1, 2 ]) <> JA.fromArray (J.fromInt <$> [ 2, 3 ]) == JA.fromArray (J.fromInt <$> [ 1, 2, 2, 3 ])
 
   log "Check path printing"
-  assertEqual
-    { expected: "$.data[0].field"
-    , actual: Path.print (Path.AtKey "field" (Path.AtIndex 0 (Path.AtKey "data" Path.Top)))
-    }
+  assertTrue $ Path.print (Path.AtKey "data" (Path.AtIndex 0 (Path.AtKey "field" Path.Tip))) == "$.data[0].field"
 
   log "Check path get"
-  assertTrue $ Path.get Path.Top (J.fromString "hello") == Just (J.fromString "hello")
-  assertTrue $ Path.get Path.Top (J.fromJArray (JA.fromArray [ J.fromInt 42 ])) == Just (J.fromJArray (JA.fromArray [ J.fromInt 42 ]))
-  assertTrue $ Path.get (Path.AtIndex 0 Path.Top) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Just (J.fromInt 42)
-  assertTrue $ Path.get (Path.AtIndex 1 Path.Top) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Just (J.fromString "X")
-  assertTrue $ Path.get (Path.AtIndex 5 Path.Top) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Nothing
-  assertTrue $ Path.get (Path.AtKey "a" Path.Top) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Just (J.fromInt 1)
-  assertTrue $ Path.get (Path.AtKey "x" Path.Top) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Just (J.fromBoolean false)
-  assertTrue $ Path.get (Path.AtKey "z" Path.Top) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Nothing
-  assertTrue $ Path.get (Path.AtKey "x" (Path.AtIndex 1 Path.Top)) (J.fromJArray (JA.fromArray [ J.fromString "skip", (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) ])) == Just (J.fromBoolean false)
+  assertTrue $ Path.get Path.Tip (J.fromString "hello") == Just (J.fromString "hello")
+  assertTrue $ Path.get Path.Tip (J.fromJArray (JA.fromArray [ J.fromInt 42 ])) == Just (J.fromJArray (JA.fromArray [ J.fromInt 42 ]))
+  assertTrue $ Path.get (Path.AtIndex 0 Path.Tip) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Just (J.fromInt 42)
+  assertTrue $ Path.get (Path.AtIndex 1 Path.Tip) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Just (J.fromString "X")
+  assertTrue $ Path.get (Path.AtIndex 5 Path.Tip) (J.fromJArray (JA.fromArray [ J.fromInt 42, J.fromString "X", J.fromBoolean true ])) == Nothing
+  assertTrue $ Path.get (Path.AtKey "a" Path.Tip) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Just (J.fromInt 1)
+  assertTrue $ Path.get (Path.AtKey "x" Path.Tip) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Just (J.fromBoolean false)
+  assertTrue $ Path.get (Path.AtKey "z" Path.Tip) (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) == Nothing
+  assertTrue $ Path.get (Path.AtIndex 1 (Path.AtKey "x" Path.Tip)) (J.fromJArray (JA.fromArray [ J.fromString "skip", (J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1), Tuple "x" (J.fromBoolean false) ])) ])) == Just (J.fromBoolean false)
+
+  log "Check path extend"
+  assertTrue do
+    let p1 = Path.AtKey "data" $ Path.AtIndex 0 $ Path.Tip
+    let p2 = Path.AtKey "info" $ Path.AtKey "title" $ Path.Tip
+    let expected = Path.AtKey "data" $ Path.AtIndex 0 $ Path.AtKey "info" $ Path.AtKey "title" $ Path.Tip
+    Path.extend p1 p2 == expected
+
+  log "Check path findCommonPrefix"
+  assertTrue do
+    let p1 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 1 $ Path.Tip
+    let p2 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 0 $ Path.Tip
+    let expected = Path.AtKey "y" $ Path.AtKey "x" $ Path.Tip
+    Path.findCommonPrefix p1 p2 == expected
+  assertTrue do
+    let p1 = Path.AtKey "other" $ Path.Tip
+    let p2 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 0 $ Path.Tip
+    let expected = Path.Tip
+    Path.findCommonPrefix p1 p2 == expected
+
+  log "Check path stripPrefix"
+  assertTrue do
+    let p1 = Path.AtKey "y" Path.Tip
+    let p2 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 0 $ Path.Tip
+    let expected = Path.AtKey "x" $ Path.AtIndex 0 Path.Tip
+    Path.stripPrefix p1 p2 == Just expected
+  assertTrue do
+    let p1 = Path.AtKey "y" $ Path.AtKey "x" $ Path.Tip
+    let p2 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 0 Path.Tip
+    let expected = Path.AtIndex 0 Path.Tip
+    Path.stripPrefix p1 p2 == Just expected
+  assertTrue do
+    let p1 = Path.AtKey "other" Path.Tip
+    let p2 = Path.AtKey "y" $ Path.AtKey "x" $ Path.AtIndex 0 Path.Tip
+    Path.stripPrefix p1 p2 == Nothing
