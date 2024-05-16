@@ -140,3 +140,5 @@ foreign import _append
        JArray
        JArray
        JArray
+
+foreign import isNull :: JSON -> Boolean

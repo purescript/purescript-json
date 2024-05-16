@@ -57,3 +57,5 @@ export const _index = (nothing, just, ix, arr) =>
   ix >= 0 && ix < arr.length ? just(arr[ix]) : nothing;
 
 export const _append = (xs, ys) => xs.concat(ys);
+
+export const isNull = (json) => json == null;
