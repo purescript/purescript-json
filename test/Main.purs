@@ -35,6 +35,10 @@ main = do
   assertTrue $ J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1) ]) == J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1) ])
   assertTrue $ J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 1) ]) < J.fromJObject (JO.fromEntries [ Tuple "a" (J.fromInt 2) ])
 
+  log "Check isNull"
+  assertTrue $ J.isNull J.null
+  assertTrue $ not $ J.isNull (J.fromInt 1)
+
   log "Check array index"
   assertTrue $ JA.index (-1) (JA.fromArray (J.fromInt <$> [ 0, 2, 4 ])) == Nothing
   assertTrue $ JA.index 0 (JA.fromArray (J.fromInt <$> [ 0, 2, 4 ])) == Just (J.fromInt 0)

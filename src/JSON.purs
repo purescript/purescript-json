@@ -30,7 +30,7 @@ import Data.Function.Uncurried (runFn2, runFn3, runFn7)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import JSON.Internal (JArray, JObject, JSON)
-import JSON.Internal (JArray, JObject, JSON) as Exports
+import JSON.Internal (JArray, JObject, JSON, isNull) as Exports
 import JSON.Internal as Internal
 
 -- | Attempts to parse a string as a JSON value. If parsing fails, an error message detailing the
