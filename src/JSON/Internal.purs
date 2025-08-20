@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Function.Uncurried (Fn2, Fn3, Fn4, Fn7, runFn2, runFn7)
 import Data.Tuple (Tuple(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | A type that represents all varieties of JSON value.
 -- |
@@ -47,13 +48,16 @@ _gt _ = GT
 foreign import data JArray :: Type
 
 -- | Converts a `JArray` into an `Array` of `JSON` values
-foreign import toArray :: JArray -> Array JSON
+toArray :: JArray -> Array JSON
+toArray = unsafeCoerce
 
 -- | Converts an `Array` of `JSON` values into a `JArray`.
-foreign import fromArray :: Array JSON -> JArray
+fromArray :: Array JSON -> JArray
+fromArray = unsafeCoerce
 
 -- | An empty `JArray`.
-foreign import empty :: JArray
+empty :: JArray
+empty = unsafeCoerce []
 
 instance Eq JArray where
   eq xs ys

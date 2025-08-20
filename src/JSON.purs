@@ -32,6 +32,7 @@ import Data.Maybe (Maybe(..))
 import JSON.Internal (JArray, JObject, JSON)
 import JSON.Internal (JArray, JObject, JSON, isNull) as Exports
 import JSON.Internal as Internal
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Attempts to parse a string as a JSON value. If parsing fails, an error message detailing the
 -- | cause may be returned in the `Left` of the result.
@@ -46,7 +47,8 @@ null = _null
 foreign import _null :: JSON
 
 -- | Converts a `Boolean` into `JSON`.
-foreign import fromBoolean :: Boolean -> JSON
+fromBoolean :: Boolean -> JSON
+fromBoolean = unsafeCoerce
 
 -- | Converts a `Number` into `JSON`.
 -- |
@@ -64,7 +66,8 @@ fromNumberWithDefault fallback n = runFn2 Internal._fromNumberWithDefault fallba
 -- |
 -- | Note: JSON doesn't have a concept of integers. This is provided
 -- | as a convenience to avoid having to convert `Int` to `Number` before creating a `JSON` value.
-foreign import fromInt :: Int -> JSON
+fromInt :: Int -> JSON
+fromInt = unsafeCoerce
 
 -- | Converts a `String` into `JSON`.
 -- |
@@ -74,17 +77,20 @@ foreign import fromInt :: Int -> JSON
 -- |
 -- | To take a string that contains printed JSON and turn it into a `JSON` value, see
 -- | [`parse`](#v:parse).
-foreign import fromString :: String -> JSON
+fromString :: String -> JSON
+fromString = unsafeCoerce
 
 -- | Converts a `JArray` into `JSON`.
-foreign import fromJArray :: JArray -> JSON
+fromJArray :: JArray -> JSON
+fromJArray = unsafeCoerce
 
 -- | Converts an array of `JSON` values into `JSON`.
 fromArray :: Array JSON -> JSON
 fromArray js = fromJArray (Internal.fromArray js)
 
 -- | Converts a `JObject` into `JSON`.
-foreign import fromJObject :: JObject -> JSON
+fromJObject :: JObject -> JSON
+fromJObject = unsafeCoerce
 
 -- | Performs case analysis on a JSON value.
 -- |

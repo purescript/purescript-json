@@ -22,9 +22,6 @@ export const _case = (isNull, isBool, isNum, isStr, isArr, isObj, j) => {
   return isObj(j);
 };
 
-export const toArray = (js) => js;
-export const fromArray = (js) => js;
-
 export const _fromEntries = (fst, snd, entries) => {
   const result = {};
   for (var i = 0; i < entries.length; i++) {
@@ -48,8 +45,6 @@ export const _entries = (tuple, obj) =>
 
 export const _lookup = (nothing, just, key, obj) =>
   hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;
-
-export const empty = [];
 
 export const length = (arr) => arr.length;
 

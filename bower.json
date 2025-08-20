@@ -29,7 +29,8 @@
     "purescript-foldable-traversable": "^6.0.0",
     "purescript-gen": "^4.0.0",
     "purescript-strings": "^6.0.1",
-    "purescript-unfoldable": "^6.0.0"
+    "purescript-unfoldable": "^6.0.0",
+    "purescript-unsafe-coerce": "^6.0.0"
   },
   "devDependencies": {
     "purescript-assert": "^6.0.0"
