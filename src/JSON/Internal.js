@@ -4,13 +4,12 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 export const _parse = (left, right, s) => {
   try {
     return right(JSON.parse(s));
-  }
-  catch (e) {
+  } catch (e) {
     return left(e.message);
   }
 };
 
-export const _fromNumberWithDefault = (fallback, n) => isNaN(n) || !isFinite(n) ? fallback : n;
+export const _fromNumberWithDefault = (fallback, n) => (isNaN(n) || !isFinite(n) ? fallback : n);
 
 export const _case = (isNull, isBool, isNum, isStr, isArr, isObj, j) => {
   if (j == null) return isNull(null);
@@ -33,8 +32,7 @@ export const _fromEntries = (fst, snd, entries) => {
   return result;
 };
 
-export const _insert = (k, v, obj) =>
-  Object.assign({ [k]: v }, obj);
+export const _insert = (k, v, obj) => Object.assign({ [k]: v }, obj);
 
 export const _delete = (k, obj) => {
   if (!Object.hasOwn(obj, k)) return obj;
@@ -43,8 +41,7 @@ export const _delete = (k, obj) => {
   return result;
 };
 
-export const _entries = (tuple, obj) =>
-  Object.entries(obj).map(([k, v]) => tuple(k)(v));
+export const _entries = (tuple, obj) => Object.entries(obj).map(([k, v]) => tuple(k)(v));
 
 export const _lookup = (nothing, just, key, obj) =>
   hasOwnProperty.call(obj, key) ? just(obj[key]) : nothing;
