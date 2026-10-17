@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [Unreleased](https://github.com/purescript/purescript-json/compare/v1.1.1...HEAD)
 
 Breaking changes:
 
